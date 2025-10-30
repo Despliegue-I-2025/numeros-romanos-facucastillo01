@@ -1,57 +1,170 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/gJA-GD-V)
-﻿# Tateti Random
+  Convertidor de Números Romanos
 
-API sencilla en Node.js que devuelve un movimiento aleatorio para un tablero de ta-te-ti.
+## Descripción general
+El **Convertidor de Números Romanos** es una aplicación desarrollada en **Node.js** que permite transformar números arábigos (los que usamos normalmente) a su representación en números romanos, y viceversa.
 
-## Requisitos previos
-- Node.js 18 o superior.
-- Cuenta en Vercel con un proyecto (puede ser creado desde el dashboard o con el comando vercel link).
-- Acceso de administrador al repositorio en GitHub para crear *secrets*.
+El proyecto está diseñado como una **API REST**, alojada en **Vercel**, y cuenta con **tests automatizados** implementados con **Jest** para garantizar su correcto funcionamiento.  
 
-## Instalacion local
-1. Clonar el repositorio y situarse en la raiz.
-2. Instalar las dependencias con `npm install`.
-3. Ejecutar la bateria de pruebas con `npm test`.
-4. Levantar el servidor local con `npm start` y consumir el endpoint `GET /move?board=[...]`.
+Además, utiliza **GitHub Actions** como sistema de **Integración Continua (CI)** para ejecutar las pruebas cada vez que se actualiza el repositorio.  
 
-## Despliegue continuo en Vercel
-Cada *push* a la rama `main` ejecuta el flujo definido en `.github/workflows/deploy-vercel.yml`. Este flujo instala dependencias, corre las pruebas y despliega en Vercel usando la CLI oficial. Para que funcione, sigue estos pasos una sola vez:
+---
 
-### 1. Autenticarse y vincular el proyecto en Vercel
-```bash
-npm install --global vercel    (este paso instala vecel en tu máquina)
-vercel login  (este paso pide que hagas ENTER. Con eso te abre un browser y espera a que lo autorices)
-vercel link
+## Funcionalidades principales
+
+###  Conversión de número normal a romano
+- **Ruta:** `/to-roman/:num`  
+- **Ejemplo:** `/to-roman/2025`  
+- **Respuesta:** `{ "result": "MMXXV" }`
+
+###  Conversión de número romano a normal
+- **Ruta:** `/from-roman/:roman`  
+- **Ejemplo:** `/from-roman/MMXXV`  
+- **Respuesta:** `{ "result": 2025 }`
+
+###  Ruta raíz de prueba
+- **Ruta:** `/`  
+- **Respuesta:** `"✅ API Convertidor Romano funcionando correctamente"`
+
+---
+
+##  Estructura del proyecto
+
 ```
-El comando `vercel link` crea la carpeta `.vercel/` (no la subas al repositorio) con el archivo `project.json` que contiene `orgId` y `projectId`.
+convertidor-numeros-romanos/
+│
+├── index.js             # Lógica principal (toRoman / fromRoman)
+├── server.js            # API Express exportada para Vercel
+├── converter.test.js    # Pruebas automatizadas con Jest
+├── package.json         # Configuración del proyecto
+├── vercel.json          # Configuración de despliegue en Vercel
+└── .github/
+    └── workflows/
+        └── ci.yml       # CI con GitHub Actions
+```
 
-### 2. Crear un token de acceso
-Genera un token permanente con `vercel tokens create tateti-ci` o desde el dashboard (Account Settings > Tokens). 
-Yo lo creé con scope completo, y sin expirar. Lo guardé en un archivo .private que no se sube al git
-Guarda el valor; solo se muestra una vez.
+---
 
-### 3. Configurar *GitHub Secrets*
-En GitHub entra a **Settings > Secrets and variables > Actions** y agrega los siguientes secretos:
-- `VERCEL_TOKEN`: el token generado en el paso anterior.
-- `VERCEL_ORG_ID`: valor `orgId` del archivo `.vercel/project.json`.
-- `VERCEL_PROJECT_ID`: valor `projectId` del archivo `.vercel/project.json`.
+##  Lógica de conversión
 
-Si tu aplicacion necesita variables de entorno, definalas en Vercel (`vercel env add` o desde el dashboard) o agrega pasos adicionales en el workflow.
+###  `toRoman(num)`
+Convierte un número entero (1 a 3999) en su representación romana, utilizando un mapeo descendente de valores (`M`, `CM`, `D`, `CD`, etc.).
 
-### 4. Disparar el workflow a mano (no debería hacer falta con GitHub Actions)
-Con los secretos configurados, haz *push* a `main`. GitHub Actions ejecuta:
-1. `npm ci`
-2. `npm test`
-3. `npx vercel pull --yes --environment=production`
-4. `npx vercel build --prod`
-5. `npx vercel deploy --prebuilt --prod`
+###  `fromRoman(roman)`
+Lee un número romano carácter por carácter desde el final, aplicando la regla de resta cuando una letra menor precede a una mayor (`IV` = 4, `IX` = 9, etc.).
 
-Al finalizar vas a ver la URL de despliegue en la pestana **Actions** del repositorio y en el dashboard de Vercel.
+---
 
-## Personalizacion
-- Para desplegar desde otra rama, cambia la seccion `on.push.branches` del workflow.
-- Si deseas saltar las pruebas antes de desplegar, elimina el paso "Run tests" en el YAML.
+## Testing con Jest
 
-## Scripts utiles
-- `npm start`: inicia el servidor.
-- `npm test`: ejecuta Jest.
+El proyecto utiliza **Jest** para validar el comportamiento esperado del conversor.  
+Incluye:
+- Tests básicos de conversión individual.
+- Tests cruzados en forma de **array de casos** (`test.each()`).
+- Tests de errores y casos límite.
+
+Los tests se ejecutan automáticamente en cada `push` o `pull request` mediante **GitHub Actions**.  
+
+---
+
+##  Descripción de los tests
+
+El archivo `converter.test.js` contiene distintos tipos de pruebas agrupadas por funcionalidad:
+
+---
+
+###  1. **Tests individuales simples**
+```js
+test('Convierte número a romano correctamente', () => {...});
+test('Convierte romano a número correctamente', () => {...});
+```
+ **Qué hace:**  
+Comprueba casos básicos y directos de conversión en ambas direcciones.  
+ **Objetivo:** verificar que las funciones principales devuelvan los resultados esperados.
+
+---
+
+###  2. **Array de tests (con `test.each()`)**
+```js
+describe('Conversión cruzada usando arrays de tests', () => {
+  const casos = [
+    [1, 'I'],
+    [3, 'III'],
+    [44, 'XLIV'],
+    [99, 'XCIX'],
+    [2025, 'MMXXV'],
+  ];
+  test.each(casos)(
+    'Convierte %i a %s y viceversa correctamente',
+    (numero, romano) => {
+      expect(toRoman(numero)).toBe(romano);
+      expect(fromRoman(romano)).toBe(numero);
+    }
+  );
+});
+```
+
+ **Qué hace:**  
+Ejecuta automáticamente la misma prueba con múltiples pares de datos.  
+ **Objetivo:** validar **consistencia bidireccional** entre ambas funciones.  
+ Jest muestra cada caso como una línea separada, lo que hace el test más visual.
+
+---
+
+###  3. **Casos límite y errores**
+```js
+describe('Casos límite y errores', () => {
+  test('Número fuera de rango', () => {
+    expect(toRoman(0)).toMatch(/fuera de rango/i);
+    expect(toRoman(4000)).toMatch(/fuera de rango/i);
+  });
+
+  test('Romano inválido', () => {
+    expect(fromRoman('ABC')).toMatch(/inválido/i);
+  });
+});
+```
+
+ **Qué hace:**  
+Prueba el comportamiento del programa ante datos **inválidos** o **fuera de rango**.  
+ **Objetivo:** garantizar que la aplicación no se rompa ante entradas incorrectas.
+
+---
+
+###  4. **Resumen de tipos de tests**
+| Tipo de test | Qué valida | Ejemplo |
+|---------------|-------------|----------|
+| Unitario simple | Una conversión puntual | `toRoman(58) → LVIII` |
+| Bidireccional (test.each) | Coherencia entre ambos métodos | `99 ↔ XCIX` |
+| Límite / Error | Entradas inválidas o fuera de rango | `toRoman(0)` → “fuera de rango” |
+
+---
+
+##  Despliegue en Vercel
+
+El proyecto se despliega en **Vercel** como una API Serverless.
+
+**Ejemplo de endpoints activos:**
+```
+https://convertidor-numeros-romanos.vercel.app/a2r?arabic=2025
+→ { "result": "MMXXV" }
+
+https://convertidor-numeros-romanos.vercel.app/r2a?roman=MMXXV
+→ { "result": 2025 }
+```
+
+---
+
+##  Tecnologías utilizadas
+| Tecnología | Uso |
+|-------------|-----|
+| Node.js | Entorno de ejecución |
+| Express | Framework para la API |
+| Jest | Testing automatizado |
+| GitHub Actions | Integración Continua |
+| Vercel | Despliegue en la nube |
+
+---
+
+## 👨‍💻 Autor
+Proyecto desarrollado por **Facundo Nahuel Castillo Jerez**  
+📍 Universidad Provincial de Córdoba Sede Regional Capilla del Monte «Dr. Bernardo Houssay» — 2025
