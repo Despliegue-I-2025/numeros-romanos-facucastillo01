@@ -12,13 +12,13 @@ Además, utiliza **GitHub Actions** como sistema de **Integración Continua (CI)
 ## Funcionalidades principales
 
 ###  Conversión de número normal a romano
-- **Ruta:** `/to-roman/:num`  
-- **Ejemplo:** `/to-roman/2025`  
+- **Ruta:** `/a2r?arabic=num`  
+- **Ejemplo:** `/a2r?arabic=2025`  
 - **Respuesta:** `{ "result": "MMXXV" }`
 
 ###  Conversión de número romano a normal
-- **Ruta:** `/from-roman/:roman`  
-- **Ejemplo:** `/from-roman/MMXXV`  
+- **Ruta:** `/r2a?roman=num`  
+- **Ejemplo:** `/r2a?roman=MMXXV`  
 - **Respuesta:** `{ "result": 2025 }`
 
 ###  Ruta raíz de prueba
