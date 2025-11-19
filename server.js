@@ -49,5 +49,6 @@ app.get('/r2a', (req, res) => {
   if (typeof result !== "number") {
     return res.status(400).json({ error: result });
   }
+} );
 
-  retu
+  return res.status(200).json({ arabic: result });
