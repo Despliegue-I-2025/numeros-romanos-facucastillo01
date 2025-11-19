@@ -51,10 +51,21 @@ function fromRoman(roman) {
 }
 
 // Pruebas rápidas
-if (require.main === module) {
+import { fileURLToPath } from 'url';
+import { argv } from 'process';
+import { pathToFileURL } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+// Verificar si este módulo es el archivo principal ejecutado
+const mainModuleUrl = argv[1] ? pathToFileURL(argv[1]).href : '';
+const isMainModule = import.meta.url === mainModuleUrl;
+
+if (isMainModule) {
   console.log("1987 →", toRoman(1987));
   console.log("MCMLXXXVII →", fromRoman("MCMLXXXVII"));
 }
 
 // Exportar para usar en otros archivos o tests
-module.exports = { toRoman, fromRoman };
+export { toRoman, fromRoman };

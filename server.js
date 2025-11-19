@@ -1,10 +1,11 @@
-const express = require('express');
-const cors = require('cors');      // <<----
-const { toRoman, fromRoman } = require('./index');
+import express from 'express';
+import cors from 'cors';
+import { toRoman, fromRoman } from './index.js';
 const app = express();
 
-app.use(cors());                   // <<----
+app.use(cors());
 app.use(express.json());
+
 
 // 🟩 Endpoint: arábigo → romano
 // Ejemplo: /a2r?arabic=2025
@@ -43,5 +44,12 @@ app.get('/', (req, res) => {
   res.send('✅ API Convertidor Romano funcionando correctamente');
 });
 
+
+app.listen(8000,()=>{
+  console.log("Server iniciado")
+})
+
 // 🟢 Export para Vercel
-module.exports = app;
+export default app;
+
+
