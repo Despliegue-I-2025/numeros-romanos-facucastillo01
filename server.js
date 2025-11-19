@@ -1,7 +1,9 @@
 const express = require('express');
+const cors = require('cors');      // <<----
 const { toRoman, fromRoman } = require('./index');
 const app = express();
 
+app.use(cors());                   // <<----
 app.use(express.json());
 
 // 🟩 Endpoint: arábigo → romano

@@ -5,13 +5,14 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "keywords": ["romanos", "convertidor", "api", "node", "express"],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "jest": "^29.7.0"
