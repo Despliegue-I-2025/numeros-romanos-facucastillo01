@@ -28,26 +28,62 @@ function toRoman(num) {
 }
 
 function fromRoman(roman) {
-  const mapa = {
-    M: 1000,
-    D: 500,
-    C: 100,
-    L: 50,
-    X: 10,
-    V: 5,
-    I: 1,
+  roman = roman.toUpperCase();
+
+  // Letras válidas
+  const mapa = { M:1000, D:500, C:100, L:50, X:10, V:5, I:1 };
+
+  // Regla 1: solo letras válidas
+  if (!/^[MDCLXVI]+$/.test(roman)) {
+    return "Número romano inválido";
+  }
+
+  // Regla 2: detectar repeticiones prohibidas
+  // I, X, C y M pueden repetirse hasta 3 veces
+  // V, L y D nunca pueden repetirse
+  if (/IIII|XXXX|CCCC|MMMM/.test(roman)) {
+    return "Número romano inválido";
+  }
+  if (/VV|LL|DD/.test(roman)) {
+    return "Número romano inválido";
+  }
+
+  // Regla 3: restas válidas
+  const restasValidas = {
+    I: ["V", "X"],
+    X: ["L", "C"],
+    C: ["D", "M"]
   };
 
+  for (let i = 0; i < roman.length - 1; i++) {
+    const actual = roman[i];
+    const siguiente = roman[i+1];
+
+    const valActual = mapa[actual];
+    const valSiguiente = mapa[siguiente];
+
+    // Si es resta
+    if (valActual < valSiguiente) {
+      // Verificar si está permitida
+      if (!restasValidas[actual] || !restasValidas[actual].includes(siguiente)) {
+        return "Número romano inválido";
+      }
+    }
+  }
+
+  // Si pasó las validaciones, convertir
   let total = 0;
   let prev = 0;
+
   for (let i = roman.length - 1; i >= 0; i--) {
-    const valor = mapa[roman[i].toUpperCase()];
-    if (!valor) return "Número romano inválido";
+    const valor = mapa[roman[i]];
     if (valor < prev) total -= valor;
     else total += valor;
     prev = valor;
   }
+
   return total;
 }
+
 
 module.exports = { toRoman, fromRoman };
