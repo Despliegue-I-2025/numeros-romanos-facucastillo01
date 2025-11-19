@@ -1,4 +1,4 @@
-import { toRoman, fromRoman } from '../index.js';
+const { toRoman, fromRoman } = require('../index.js');
 
 
 // Tests individuales simples
